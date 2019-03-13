@@ -1,0 +1,237 @@
+/* 
+
+
+Question-
+
+
+In this problem, there are types of events: ENTER (a student enters the queue) or SERVED.
+A unique token is assigned to any student entering the queue. The queue serves the students 
+based on the following criteria:
+The student having the highest Cumulative Grade Point Average (CGPA) is served first.
+Any students having the same CGPA will be served by name in ascending case-sensitive alphabetical order.
+Any students having the same CGPA and name will be served in ascending token order.
+Given a sequence of  events, print the names of students who are yet to be served(based on above criteria). 
+If the queue is empty, print EMPTY.
+Input Format
+The first line of input contains an integer, , denoting the total number of events. 
+Each of the subsequent lines will be of the following two forms:
+ENTER name CGPA token - The student to be inserted into the priority queue.
+SERVED - The highest priority student in the queue was served.
+Constraints
+ where 
+ where each token i is a unique integer.
+
+Output Format
+Print the names (based on the criteria) of the students who are not served at all after executing all  events; if every student in the queue was served, then print EMPTY.
+Sample Input
+12
+ENTER John 3.75 50
+ENTER Mark 3.8 24
+ENTER Shafaet 3.7 35
+SERVED
+SERVED
+ENTER Samiha 3.85 36
+SERVED
+ENTER Ashley 3.9 42
+ENTER Maria 3.6 46
+ENTER Anik 3.95 49
+ENTER Dan 3.95 50
+SERVED
+Sample Output
+Dan
+Ashley
+Shafaet
+Maria
+
+*/
+
+=========================================================================================================================================
+//solution
+
+package first;
+
+import java.util.Scanner;
+
+//class student as object in queue
+class student{
+	//data member of student class
+	private String name;
+	private float CGPA;
+	private int token;
+	
+	//for assigning value to data-member
+	student(String name,float cgpa,int token) {
+		this.name = name;
+		CGPA = cgpa;
+		this.token = token;
+		
+	}
+	
+	//function for getting private value
+	float get_CGPA() {
+		return CGPA;
+	}
+	String get_name() {
+		return name;
+	}
+}
+
+
+class queue{
+	int front,rear,capacity,size;
+	student prqueue[];
+	
+	Scanner sc = new Scanner(System.in);
+	
+	queue(int test){
+		this.size = test;
+		prqueue = new student[size];
+		capacity = 0;
+		front = rear =0;
+	}
+	
+	void append(String join) {
+		String tem1 = join; 
+		//String tem1 = sc.nextLine();
+		String[] tem2 = tem1.split(" ");
+		
+		String name = tem2[0];
+		float cgpa = Float.parseFloat(tem2[1]);
+		int token = Integer.parseInt(tem2[2]);
+		capacity++;
+		
+		
+		prqueue[rear] = new student(name,cgpa,token);
+		
+		rear = rear+1;
+		
+		this.sort();
+	}
+	
+	void sort() {
+		int max_index=0;
+		student max=prqueue[0];
+		
+		for(int i=0;i<capacity;i++) {
+			for(int j=i+1;j<capacity;j++) {
+				//tack first as minimum and using bubble sort
+				max = prqueue[front+i];
+				max_index = front+i;
+				
+				if(max.get_CGPA()<prqueue[front+j].get_CGPA()) {
+					max = prqueue[front+j];
+					max_index = front + j;
+				}
+			}
+			
+			//swapping the objects
+			student temp = prqueue[front+i];
+			prqueue[front+i] = max;
+			prqueue[max_index] = temp;
+			
+		}
+			
+			//logic for same cgpa but we sort according alphabetically
+			//idea is 
+			//1) find the total same cgpa
+			//2) sort their string but in swapping also swap object of student 
+			
+			//1) same_cgpa contain how many cgpa is same
+			if(this.capacity>=2)
+			{
+				int same_cgpa = 0;
+				
+			
+				while(((same_cgpa+1) < this.capacity) && (prqueue[front + same_cgpa].get_CGPA() == prqueue[front + same_cgpa+1].get_CGPA())) {
+					same_cgpa++;
+				}
+				
+				same_cgpa = same_cgpa + 1;
+			
+				//sorting them according to objects
+				for(int k=front;k<same_cgpa;k++) {
+					for(int l=k+1;l<same_cgpa;l++) {
+						if(prqueue[k].get_name().compareTo(prqueue[l].get_name()) > 0) {
+							//swap objects
+							student tem4 = prqueue[k];
+							prqueue[k] = prqueue[l];
+							prqueue[l] = tem4;
+						}
+					}
+				}
+			}	
+		
+	}
+	
+	
+	void delete_element() {
+		//sort into priority queue
+		this.sort();
+		
+		prqueue[front] = null;
+		front = front + 1;
+		capacity = capacity - 1;
+	}
+	
+	void remain_element() {
+		
+		for(int i=front;i<rear;i++) {
+			System.out.println(prqueue[i].get_name());
+		}
+		
+	}
+}
+
+
+//main class for our module
+public class intershal_java_1 {
+	
+	
+	public static void main(String args[]) throws Exception{
+		
+		
+		//test is total input case
+		int test;
+		Scanner sc = new Scanner(System.in);
+		test = sc.nextInt();
+
+		sc.nextLine();
+		//create queue of object's..
+		queue p_queue = new queue(test+2);
+		
+		
+		String option1;
+		
+		//main loop for checking every entry
+		while(test > 0) {
+			//System.out.print("*");
+			option1 = sc.nextLine();
+			//System.out.print("*");
+			
+			String[] tem3 = option1.split(" ",2);
+			String option = tem3[0];
+			
+			
+			
+			if(option.equals("ENTER")) {
+				String join = tem3[1];
+				//logic of inserting the new object into queue
+				p_queue.append(join);
+			}
+			else {
+				//logic for sorting queue into GCPA order  --done
+				
+				//delete first element from the queue --done
+				p_queue.delete_element();
+			}
+			test --;
+		}
+		
+		//print all remaining object name from the queue
+		
+		p_queue.remain_element();
+		sc.close();
+	}
+}
+
+
